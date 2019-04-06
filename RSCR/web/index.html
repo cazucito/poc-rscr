@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>[Web Sockets]</title>
+    </head>
+    <body>
+        <div>
+            <input id="msj" type="text" />
+        </div>
+        <div>
+            <input type="submit" value="Enviar mensaje a todos los clientes (Broadcast)" onclick="enviar();" />
+        </div>
+        <div id="mensajes"></div>
+        <script type="text/javascript">
+            var webSocket =
+                    new WebSocket('ws://localhost:8080/RSCR/variosclientes');
+            webSocket.onerror = function (event) {
+                onError(event);
+            };
+            webSocket.onopen = function (event) {
+                onOpen(event);
+            };
+            webSocket.onmessage = function (event) {
+                onMessage(event);
+            };
+            function onMessage(event) {
+                let datosEnCadena = event.data;
+                let datosJSON = JSON.parse(datosEnCadena);
+                switch (datosJSON.type) {
+                    case "11":
+                        document.getElementById('mensajes').innerHTML
+                                += '<br />Mensaje recibido: ' + datosJSON.mensaje;
+                        break;
+                    case "21":
+                        console.log("21");
+                        break;
+                    default:
+                        console.log("tipo desconocido");
+
+                }
+            }
+
+            function onOpen(event) {
+                document.getElementById('mensajes').innerHTML
+                        = 'Conexi&oacute;n establecida';
+            }
+
+            function onError(event) {
+                console.log(event.data);
+            }
+
+            function enviar() {
+                var mensajeGlobal = {};
+                mensajeGlobal.type = "10";
+                mensajeGlobal.mensaje = document.getElementById("msj").value;
+                webSocket.send(JSON.stringify(mensajeGlobal));
+            }
+        </script>
+    </body>
+</html>
