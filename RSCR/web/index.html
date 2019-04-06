@@ -45,21 +45,20 @@
                             break;
                         case "31":
                             console.log("31");
-                            document.getElementById("depuracion").innerHTML = JSON.stringify(datosJSON.mensaje);
+                            //document.getElementById("depuracion").innerHTML = JSON.stringify(datosJSON.mensaje);
                             //
                             var select = document.getElementById("usuariosConectados");
                             select.options.length = 0;
+                            select.options[select.options.length] = new Option("todos", "todos");
                             for (var i = 0; i < datosJSON.mensaje.length; i++) {
                                 var alias = datosJSON.mensaje[i].alias;
                                 var sesion = datosJSON.mensaje[i].sesion;
                                 console.log(alias + "-" + sesion);
-
                                 select.options[select.options.length] = new Option(alias, sesion);
                             }
                             break;
                         default:
                             console.log("tipo desconocido");
-
                     }
                 }
             }
@@ -71,8 +70,17 @@
             }
             function enviar() {
                 var mensajeGlobal = {};
-                mensajeGlobal.type = "10";
-                mensajeGlobal.mensaje = document.getElementById("msj").value;
+                let aQuienSelect = document.getElementById("usuariosConectados");
+                let aQuien = aQuienSelect.options[aQuienSelect.selectedIndex].value;
+                console.log("aQuien:" + aQuien);
+                if (aQuien == "todos") {
+                    mensajeGlobal.type = "10";
+                    mensajeGlobal.mensaje = document.getElementById("msj").value;
+                } else {
+                    mensajeGlobal.type = "12";
+                    let mensaje = document.getElementById("msj").value + "@" + aQuien;
+                    mensajeGlobal.mensaje = mensaje;
+                }
                 webSocket.send(JSON.stringify(mensajeGlobal));
             }
         </script>

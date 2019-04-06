@@ -47,10 +47,31 @@ public class VariosClientesWSEndpoint {
             case "11":
                 System.out.println("TO-DO");
                 break;
+            // mensaje particular
+            // {type:"12",mensaje="MensajeGlobalPrueba"}
+            case "12":
+                //System.out.println("mensaje:" + mensaje);
+                String aQuien = mensaje.substring(mensaje.indexOf("@") + 1, mensaje.length());
+                mensaje = mensaje.substring(0, mensaje.indexOf("@"));
+                System.out.println("aQuien:" + aQuien);
+                StringBuilder sb = new StringBuilder();
+                sb.append("{");
+                sb.append("\"type\":").append("\"11\"");
+                sb.append(",");
+                sb.append("\"mensaje\":").append("\"").append(mensaje).append("\"");
+                sb.append("}");
+                for (Session cliente : clientes) {
+                    System.out.println("cliente.getId():"+cliente.getId());
+                    if (cliente.getId().equalsIgnoreCase(aQuien)) {
+                        cliente.getBasicRemote().sendText(sb.toString());
+                        break;
+                    }
+                }
+                break;
             case "30":
                 usuariosConectados.put(mensaje, _sesion);
                 // {type:"31",mensaje=""}
-                StringBuilder sb = new StringBuilder();
+                sb = new StringBuilder();
                 sb.append("{");
                 sb.append("\"type\":").append("\"31\"");
                 sb.append(",");
@@ -73,11 +94,11 @@ public class VariosClientesWSEndpoint {
                 }
                 sb.append("]");
                 sb.append("}");
-                System.out.println("usuarios:"+sb.toString());
+                //System.out.println("usuarios:"+sb.toString());
                 for (Session cliente : clientes) {
-                    if (!cliente.equals(_sesion)) {
-                        cliente.getBasicRemote().sendText(sb.toString());
-                    }
+                    // if (!cliente.equals(_sesion)) {
+                    cliente.getBasicRemote().sendText(sb.toString());
+                    // }
                 }
                 break;
             // MENSAJE NO CONOCIDO
