@@ -7,7 +7,8 @@
         [Web Sockets]: Really Simple Chat Room (RSCR)
         <div id="depuracion"></div>
         <hr>
-        <input type="text" id="alias" placeholder="Ponga su alias" value="neo" /> <button id="onOff" onclick="conectar();">Entrar</button>
+        <input type="text" id="alias" placeholder="Ponga su alias" value="neo" />
+        <button id="onOff" onclick="conectar();">Entrar</button>
         <hr>
         <div>
             <input id="msj" type="text" />
@@ -45,7 +46,7 @@
                             switch (datosJSON.type) {
                                 case "11":
                                     document.getElementById('mensajes').innerHTML
-                                            += '<br />Mensaje recibido: ' + datosJSON.mensaje;
+                                            += '<br />' + datosJSON.mensaje;
                                     break;
                                 case "21":
                                     console.log("21");
@@ -87,13 +88,14 @@
                 var mensajeGlobal = {};
                 let aQuienSelect = document.getElementById("usuariosConectados");
                 let aQuien = aQuienSelect.options[aQuienSelect.selectedIndex].value;
+                let deQuien = document.getElementById("alias").value;
                 //console.log("aQuien:" + aQuien);
                 if (aQuien == "todos") {
                     mensajeGlobal.type = "10";
-                    mensajeGlobal.mensaje = document.getElementById("msj").value;
+                    mensajeGlobal.mensaje = "[" + deQuien + "]:" + document.getElementById("msj").value;
                 } else {
                     mensajeGlobal.type = "12";
-                    let mensaje = document.getElementById("msj").value + "@" + aQuien;
+                    let mensaje = "[" + deQuien + "]:" + document.getElementById("msj").value + "@" + aQuien;
                     mensajeGlobal.mensaje = mensaje;
                 }
                 webSocket.send(JSON.stringify(mensajeGlobal));
