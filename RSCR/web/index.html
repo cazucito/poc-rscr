@@ -1,54 +1,74 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>[Web Sockets]</title>
+        <title>[Web Sockets]: Really Simple Chat Room (RSCR)</title>
     </head>
     <body>
+        [Web Sockets]: Really Simple Chat Room (RSCR)
+        <div id="depuracion"></div>
+        <hr>
+        <input type="text" id="alias" placeholder="Ponga su alias" value="neo" /> <button onclick="conectar();">Entrar a la sala</button>
+        <hr>
         <div>
             <input id="msj" type="text" />
+            <select id="usuariosConectados">
+                <option value="todos">TODOS</option>
+            </select>
         </div>
         <div>
-            <input type="submit" value="Enviar mensaje a todos los clientes (Broadcast)" onclick="enviar();" />
+            <input type="submit" value="ENVIAR" onclick="enviar();" />
         </div>
         <div id="mensajes"></div>
         <script type="text/javascript">
-            var webSocket =
-                    new WebSocket('ws://localhost:8080/RSCR/variosclientes');
-            webSocket.onerror = function (event) {
-                onError(event);
-            };
-            webSocket.onopen = function (event) {
-                onOpen(event);
-            };
-            webSocket.onmessage = function (event) {
-                onMessage(event);
-            };
-            function onMessage(event) {
-                let datosEnCadena = event.data;
-                let datosJSON = JSON.parse(datosEnCadena);
-                switch (datosJSON.type) {
-                    case "11":
-                        document.getElementById('mensajes').innerHTML
-                                += '<br />Mensaje recibido: ' + datosJSON.mensaje;
-                        break;
-                    case "21":
-                        console.log("21");
-                        break;
-                    default:
-                        console.log("tipo desconocido");
+            var webSocket;
+            function conectar() {
+                let wsEndpoint = 'ws://localhost:8080/RSCR/rscr';
+                webSocket = new WebSocket(wsEndpoint);
+                webSocket.onerror = function (event) {
+                    console.log(event.data);
+                };
+                webSocket.onopen = function (event) {
+                    document.getElementById('mensajes').innerHTML
+                            = 'Conexi&oacute;n establecida';
+                    setTimeout(altaAlias(), 2000);
+                };
+                webSocket.onmessage = function (event) {
+                    let datosEnCadena = event.data;
+                    let datosJSON = JSON.parse(datosEnCadena);
+                    switch (datosJSON.type) {
+                        case "11":
+                            document.getElementById('mensajes').innerHTML
+                                    += '<br />Mensaje recibido: ' + datosJSON.mensaje;
+                            break;
+                        case "21":
+                            console.log("21");
+                            break;
+                        case "31":
+                            console.log("31");
+                            document.getElementById("depuracion").innerHTML = JSON.stringify(datosJSON.mensaje);
+                            //
+                            var select = document.getElementById("usuariosConectados");
+                            select.options.length = 0;
+                            for (var i = 0; i < datosJSON.mensaje.length; i++) {
+                                var alias = datosJSON.mensaje[i].alias;
+                                var sesion = datosJSON.mensaje[i].sesion;
+                                console.log(alias + "-" + sesion);
 
+                                select.options[select.options.length] = new Option(alias, sesion);
+                            }
+                            break;
+                        default:
+                            console.log("tipo desconocido");
+
+                    }
                 }
             }
-
-            function onOpen(event) {
-                document.getElementById('mensajes').innerHTML
-                        = 'Conexi&oacute;n establecida';
+            function altaAlias() {
+                var mensajeGlobal = {};
+                mensajeGlobal.type = "30";
+                mensajeGlobal.mensaje = document.getElementById("alias").value;
+                webSocket.send(JSON.stringify(mensajeGlobal));
             }
-
-            function onError(event) {
-                console.log(event.data);
-            }
-
             function enviar() {
                 var mensajeGlobal = {};
                 mensajeGlobal.type = "10";
